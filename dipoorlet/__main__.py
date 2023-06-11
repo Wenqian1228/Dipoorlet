@@ -16,6 +16,9 @@ from .utils import (ONNXGraph, load_clip_val, logger, reduce_clip_val,
                     reduce_profiling_res, save_clip_val, save_profiling_res,
                     setup_logger)
 from .weight_transform import weight_calibration
+# os.environ['RANK'] = '0'
+# os.environ['WORLD_SIZE'] = '1'
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-M", "--model", help="onnx model")
@@ -50,7 +53,7 @@ if args.slurm:
 elif args.mpirun:
     init_from_mpi()
 else:
-    dist.init_process_group(backend='nccl')
+    dist.init_process_group(backend='nccl',rank=0, world_size=1, init_method='tcp://127.0.0.1:23456')
     device = dist.get_rank() % torch.cuda.device_count()
     torch.cuda.set_device(device)
 
